@@ -703,12 +703,4 @@ GrayImage 和 RGBImage class 中的CMD要呼叫datal_oader裡的Diaplay_Gray_CMD
         
 ## 最終成果(github link)
 
-*    [謝承諺](https://github.com/glenneee/PhotoMosaic)
-*    [彭柏凱](https://github.com/pkbbkphey/Photo-Mosaic)
-*    [黃意庭](https://github.com/Huangmona/Photo-Mosaic)
-*    [蔡亞彤](https://github.com/popisgood/2024-OOP-Final_Project-public)
-*    [林羿辰](https://github.com/yichen0705/NYCU-OOP-Final-Project)
-*    [何昕恩,楊文德](https://github.com/ayanaxinnn/theOOPFianl)
-*    [歐哲熏,王琮翔](https://github.com/CharLie071005/OOP_final_project)
-*    [李允翔,楊勗](https://github.com/chrisyang1007/OOP-Final-Project)
-*    [郭柏均](https://github.com/someone7414/OOP2024.git)
+*    Remove for next sememster
