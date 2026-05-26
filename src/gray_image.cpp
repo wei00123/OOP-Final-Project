@@ -77,3 +77,43 @@ GrayImage* GrayImage::Crop(int x, int y, int w, int h){
         for(int j = 0; j < w; ++j) (*res)(j, i) = (*this)(x + j, y + i);
     return res;
 }
+
+// 膨脹運算 (Dilation)：找鄰域內的最大值。只要四周有白色(255)，中心就變成白色。用來填補空洞。
+GrayImage* GrayImage::Dilation(int kernel_size) {
+    GrayImage* res = new GrayImage(width, height);
+    int radius = kernel_size / 2;
+
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            int max_val = 0;
+            // 掃描核心區域 (Window Scan)
+            for (int ky = -radius; ky <= radius; ++ky) {
+                for (int kx = -radius; kx <= radius; ++kx) {
+                    max_val = max(max_val, (*this)(x + kx, y + ky));
+                }
+            }
+            (*res)(x, y) = max_val; // 賦值給新圖
+        }
+    }
+    return res;
+}
+
+// 侵蝕運算 (Erosion)：找鄰域內的最小值。只要四周有黑色(0)，中心就變成黑色。用來消除陰影髒邊。
+GrayImage* GrayImage::Erosion(int kernel_size) {
+    GrayImage* res = new GrayImage(width, height);
+    int radius = kernel_size / 2;
+
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            int min_val = 255;
+            // 掃描核心區域 (Window Scan)
+            for (int ky = -radius; ky <= radius; ++ky) {
+                for (int kx = -radius; kx <= radius; ++kx) {
+                    min_val = min(min_val, (*this)(x + kx, y + ky));
+                }
+            }
+            (*res)(x, y) = min_val; // 賦值給新圖
+        }
+    }
+    return res;
+}
