@@ -14,7 +14,7 @@
 using namespace std;
 
 int main(int argc, char *argv[]){
-    cout << "============= Step 2: Construct image inheritance and polymorphism =============\n";
+    cout << "========= Step 2: Construct image inheritance and polymorphism =========\n";
     Image *step2Img1 = new GrayImage();
     step2Img1->LoadImage("Image-Folder/mnist/img_100.jpg");
     step2Img1->DumpImage("output/step2_GrayImage_img_100.jpg");
@@ -42,8 +42,8 @@ int main(int argc, char *argv[]){
     RGBImage *step3ImgBox = new RGBImage(0, 0);
     if (step3ImgBox->LoadImage(test_path)){
         filter.Filter(step3ImgBox, 1);
-        step3ImgBox->DumpImage("output/step3_1_box_lena.jpg");
-        cout << "[done] 1. Box Filter -> output/step3_1_box_lena.jpg\n";
+        step3ImgBox->DumpImage("output/step3_1_box_filter.jpg");
+        cout << "[done] 1. Box Filter -> output/step3_1_box_filter.jpg\n";
     }
     delete step3ImgBox;
 
@@ -51,8 +51,8 @@ int main(int argc, char *argv[]){
     RGBImage *step3ImgSobel = new RGBImage(0, 0);
     if (step3ImgSobel->LoadImage(test_path)){
         filter.Filter(step3ImgSobel, 2);
-        step3ImgSobel->DumpImage("output/step3_2_sobel_lena.jpg");
-        cout << "[done] 2. Sobel Gradient -> output/step3_2_sobel_lena.jpg\n";
+        step3ImgSobel->DumpImage("output/step3_2_sobel_gradient.jpg");
+        cout << "[done] 2. Sobel Gradient -> output/step3_2_sobel_gradient.jpg\n";
     }
     delete step3ImgSobel;
 
@@ -60,8 +60,8 @@ int main(int argc, char *argv[]){
     RGBImage *step3ImgContrast = new RGBImage(0, 0);
     if (step3ImgContrast->LoadImage(test_path)){
         filter.Filter(step3ImgContrast, 4);
-        step3ImgContrast->DumpImage("output/step3_3_contrast_lena.jpg");
-        cout << "[done] 3. Contrast Stretching -> output/step3_3_contrast_lena.jpg\n";
+        step3ImgContrast->DumpImage("output/step3_3_contrast_stretching.jpg");
+        cout << "[done] 3. Contrast Stretching -> output/step3_3_contrast_stretching.jpg\n";
     }
     delete step3ImgContrast;
 
@@ -69,8 +69,8 @@ int main(int argc, char *argv[]){
     RGBImage *step3ImgMosaic = new RGBImage(0, 0);
     if (step3ImgMosaic->LoadImage(test_path)){
         filter.Filter(step3ImgMosaic, 8);
-        step3ImgMosaic->DumpImage("output/step3_4_mosaic_lena.jpg");
-        cout << "[done] 4. Mosaic Filter -> output/step3_4_mosaic_lena.jpg\n";
+        step3ImgMosaic->DumpImage("output/step3_4_mosaic_filter.jpg");
+        cout << "[done] 4. Mosaic Filter -> output/step3_4_mosaic_filter.jpg\n";
     }
     delete step3ImgMosaic;
     cout << "\n";
@@ -95,7 +95,10 @@ int main(int argc, char *argv[]){
 
     auto end_time = chrono::high_resolution_clock::now();
     chrono::duration<double> elapsed = end_time - start_time;
+    
+    cout << "vvvvvvvvvvvvvv 效能測試結果 vvvvvvvvvvvvv\n";
     cout << "運算耗時: " << elapsed.count() << " 秒\n";
+    cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n";
     cout << "\n";
 
     // more ...
@@ -126,6 +129,7 @@ int main(int argc, char *argv[]){
     delete test_img;
     if (subject_only) delete subject_only;
     if (background_only) delete background_only;
+    cout << "\n";
 
     cout << "============= Additional features 2: Single Image Mosaic =============\n";
     RGBImage* target_img = new RGBImage();
@@ -140,6 +144,7 @@ int main(int argc, char *argv[]){
         delete target_img;
         return -1;
     }
+    
 
     int tileSize = 16; 
     SingleImageMosaic mosaic_solver(tileSize);
@@ -155,12 +160,13 @@ int main(int argc, char *argv[]){
     delete target_img;
     delete single_material;
     cout << "[done] Single Image Mosaic -> output/add2_single_image_mosaic.jpg\n";
-    
+    cout << "\n";
+
     cout << "============= Additional features 3: Pthread for Photo Mosaic =============\n";
     auto start_time_pthread = chrono::high_resolution_clock::now();
     RGBImage* add3Img = new RGBImage();
     if (!add3Img->LoadImage("Image-Folder/girl_2x.png")) {
-        cerr << "找不到原始圖片 lena.jpg！" << endl;
+        cerr << "找不到原始圖片 lena.jpg！\n";
         delete add3Img;
         return -1;
     }
@@ -176,14 +182,16 @@ int main(int argc, char *argv[]){
     auto end_time_pthread = chrono::high_resolution_clock::now();
     chrono::duration<double> elapsed_pthread = end_time_pthread - start_time_pthread;
 
+    cout << "vvvvvvvvvvvvvv 效能測試結果 vvvvvvvvvvvvv\n";
     cout << "運算耗時: " << elapsed_pthread.count() << " 秒\n";
+    cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n";
     cout << "\n";
 
     cout << "============= Additional features 4: CUDA for Photo Mosaic =============\n";
     auto start_time_cuda = chrono::high_resolution_clock::now();
     RGBImage* add4Img = new RGBImage();
     if (!add4Img->LoadImage("Image-Folder/girl_2x.png")) {
-        cerr << "找不到原始圖片 lena.jpg！" << endl;
+        cerr << "找不到原始圖片 lena.jpg！\n";
         delete add4Img;
         return -1;
     }
@@ -200,7 +208,9 @@ int main(int argc, char *argv[]){
     auto end_time_cuda = chrono::high_resolution_clock::now();
     chrono::duration<double> elapsed_cuda = end_time_cuda - start_time_cuda;
 
+    cout << "vvvvvvvvvvvvvv 效能測試結果 vvvvvvvvvvvvv\n";
     cout << "運算耗時: " << elapsed_cuda.count() << " 秒\n";
+    cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n";
     cout << "\n";
 
     return 0;
