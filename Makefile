@@ -1,4 +1,4 @@
-# ompiler & Linker settings
+# Compiler & Linker settings
 CXX = g++
 CXXFLAGS = -I ./inc -I ./third-party/CImg -I ./third-party/libjpeg -I ./Data-Loader -std=c++11
 OPTFLAGS = -march=native -flto -funroll-loops -finline-functions -ffast-math -O3
@@ -13,6 +13,8 @@ CHECKFLAGS = --leak-check=full -s --show-leak-kinds=all --track-origins=yes
 SRCDIR = src
 OBJDIR = obj
 INCDIR = inc
+OUTDIR = output
+
 SRCS = $(wildcard $(SRCDIR)/*.cpp)
 OBJS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
 DEPS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.d,$(SRCS))
@@ -31,17 +33,20 @@ endif
 # Name of the executable
 TARGET = Image_Processing Data_Loader_Example
 
-all: $(TARGET)
+all: $(OUTDIR) $(TARGET)
 
 $(OBJDIR):
 	@mkdir $(OBJDIR)
 
+$(OUTDIR):
+	@mkdir -p $(OUTDIR)
+
 Image_Processing: main.cpp $(OBJS) $(OBJDIR)/data_loader.o
-	$(VECHO) "	LD\t$@\n"
+	$(VECHO) "  LD\t$@\n"
 	$(Q)$(CXX) $(WARNINGS) $(CXXFLAGS) $(OPTFLAGS) $^ -o $@ $(LINKER)
 
 Data_Loader_Example: data_loader_demo.cpp $(OBJDIR)/data_loader.o
-	$(VECHO) "	LD\t$@\n"
+	$(VECHO) "  LD\t$@\n"
 	$(Q)$(CXX) $(WARNINGS) $(CXXFLAGS) $(OPTFLAGS) $^ -o $@ $(LINKER)
 
 # Include generated dependency files
@@ -49,15 +54,13 @@ Data_Loader_Example: data_loader_demo.cpp $(OBJDIR)/data_loader.o
 
 # Compilation rule for object files with automatic dependency generation
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR) Makefile
-	$(VECHO) "	CC\t$@\n"
+	$(VECHO) "  CC\t$@\n"
 	$(Q)$(CXX) $(WARNINGS) $(CXXFLAGS) $(OPTFLAGS) -MMD -c $< -o $@
 
 # Compilation rule for data_loader.o with explicit dependencies
 $(OBJDIR)/data_loader.o: ./Data-Loader/data_loader.cpp ./Data-Loader/data_loader.h | $(OBJDIR) Makefile
-	$(VECHO) "	CC\t$@\n"
+	$(VECHO) "  CC\t$@\n"
 	$(Q)$(CXX) $(WARNINGS) $(CXXFLAGS) $(OPTFLAGS) -MMD -c $< -o $@
-
-
 
 install:
 	$(VECHO) "Installing third party dependencies\n"
@@ -69,4 +72,4 @@ check:
 	$(CHECKCC) $(CHECKFLAGS) ./Image_Processing
 
 clean:
-	rm -rf $(OBJDIR) $(TARGET)
+	$(Q)rm -rf $(OBJDIR) $(TARGET) $(OUTDIR)
