@@ -2,6 +2,7 @@
 #include <vector>
 
 int main(){
+    cout << "============= Step 1: Play around data loader class =============\n";
     Data_Loader data_loader;
     
     // 1. Load gray image
@@ -19,6 +20,7 @@ int main(){
     int **pixels2 = data_loader.Load_Gray("Image-Folder/lena.jpg", &w2, &h2);
     data_loader.Dump_Gray(w2, h2, pixels2, string("output/step1_lena.jpg"));
     data_loader.Display_Gray_X_Server(w2, h2, pixels2);
+    // data_loader.Display_Gray_ASCII(w2, h2, pixels2);
     data_loader.Display_Gray_CMD("output/step1_lena.jpg");
 
     // 3. Load rgb image
@@ -36,4 +38,5 @@ int main(){
     for(const auto &filename : filenames){
         cout << filename << endl;
     }
+    cout << "\n";
 }
