@@ -6,15 +6,13 @@
 
 class ImageSegmentation {
 private:
-    int tolerance;
+    int tolerance; // 顏色閥值
 
 public:
     ImageSegmentation(int tol = 60);
     ~ImageSegmentation();
 
     void Segment(RGBImage* src, RGBImage*& subject, RGBImage*& background);
-    virtual Image* Dilation(int kernel_size) { return nullptr; }
-    virtual Image* Erosion(int kernel_size) { return nullptr; }
 };
 
 #endif

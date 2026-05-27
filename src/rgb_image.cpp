@@ -78,8 +78,8 @@ RGBImage* RGBImage::Resize(int new_w, int new_h){
             int src_y = (int)(y * sy);
             
             // 確保索引不會變成負數或越界
-            src_x = std::max(0, std::min(src_x, width - 1));
-            src_y = std::max(0, std::min(src_y, height - 1));
+            src_x = max(0, min(src_x, width - 1));
+            src_y = max(0, min(src_y, height - 1));
 
             for (int c = 0; c < 3; ++c) {
                 (*res)(x, y, c) = (*this)(src_x, src_y, c);

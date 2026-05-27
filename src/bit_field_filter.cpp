@@ -29,14 +29,14 @@ void Bit_Field_Filter::Apply_Box_Filter(RGBImage *img){
     int w = img->get_width();
     int h = img->get_height();
     
-    // 建立暫存陣列 (避免污染原圖)
+    // 建立暫存陣列(避免污染原圖)
     int*** temp = new int**[h];
     for(int i=0; i<h; i++){
         temp[i] = new int*[w];
         for(int j=0; j<w; j++) temp[i][j] = new int[3]{0};
     }
 
-    // 執行 Box Filter 邏輯
+    // 執行Box Filter邏輯
     for (int y = 1; y < h - 1; y++){
         for (int x = 1; x < w - 1; x++){
             int sumR = 0, sumG = 0, sumB = 0;
@@ -68,14 +68,13 @@ void Bit_Field_Filter::Apply_Sobel_Gradient(RGBImage *img){
     int w = img->get_width();
     int h = img->get_height();
     
-    // (建立暫存陣列的程式碼同上...)
     int*** temp = new int**[h];
     for(int i=0; i<h; i++){
         temp[i] = new int*[w];
         for(int j=0; j<w; j++) temp[i][j] = new int[3]{0};
     }
 
-    // 執行 Sobel 邏輯...
+    // 執行Sobel邏輯
     int Gx[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
     int Gy[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
 
@@ -147,7 +146,7 @@ void Bit_Field_Filter::Apply_Contrast_Stretching(RGBImage *img){
 
 void Bit_Field_Filter::Apply_Mosaic_Filter(RGBImage *img){
     int w = img->get_width(), h = img->get_height();
-    int blockSize = 1; // 馬賽克方塊大小
+    int blockSize = 4; // 馬賽克方塊大小
 
     // 每次跳一個 block 的大小
     for (int by = 0; by < h; by += blockSize){
@@ -155,7 +154,7 @@ void Bit_Field_Filter::Apply_Mosaic_Filter(RGBImage *img){
             int sumR = 0, sumG = 0, sumB = 0;
             int count = 0;
 
-            // 1. 計算這個 block 的顏色總和
+            // 計算這個 block 的顏色總和
             for (int y = by; y < by + blockSize && y < h; y++){
                 for (int x = bx; x < bx + blockSize && x < w; x++){
                     sumR += img->getR(x, y);
@@ -165,12 +164,12 @@ void Bit_Field_Filter::Apply_Mosaic_Filter(RGBImage *img){
                 }
             }
 
-            // 2. 算平均值
+            // 算平均值
             int avgR = sumR / count;
             int avgG = sumG / count;
             int avgB = sumB / count;
 
-            // 3. 把整個 block 塗上平均顏色
+            // 把整個block變成平均顏色
             for (int y = by; y < by + blockSize && y < h; y++){
                 for (int x = bx; x < bx + blockSize && x < w; x++){
                     img->setRGB(x, y, avgR, avgG, avgB);

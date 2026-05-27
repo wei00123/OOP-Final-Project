@@ -24,8 +24,6 @@ public:
     GrayImage* Resize(int new_w, int new_h) override; // 縮放
     GrayImage* Crop(int x, int y, int w, int h) override; // 裁切
 
-    GrayImage* Dilation(int kernel_size) override;
-    GrayImage* Erosion(int kernel_size) override;
 };
 
 #endif

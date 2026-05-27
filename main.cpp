@@ -78,14 +78,14 @@ int main(int argc, char *argv[]){
     cout << "================== Step 4: Photo Mosaic ==================\n";
     auto start_time = chrono::high_resolution_clock::now();
     RGBImage* step4Img = new RGBImage();
-    // lena->LoadImage("lena.jpg");
     if (!step4Img->LoadImage("Image-Folder/girl_2x.png")) {
-        cerr << "找不到原始圖片 lena.jpg！" << endl;
+        cerr << "Error: Cannot find target image: Image-Folder/girl_2x.png\n";        
         delete step4Img;
         return -1;
     }
 
-    Photo_Mosaic mosaic(16); // 設定磁磚大小為 16x16
+    // 這裡維持原本的原生 CPU 單執行緒版本
+    Photo_Mosaic mosaic(16); 
     mosaic.LoadTiles("Image-Folder/cifar10");
     mosaic.Process(step4Img);
 
@@ -96,16 +96,16 @@ int main(int argc, char *argv[]){
     auto end_time = chrono::high_resolution_clock::now();
     chrono::duration<double> elapsed = end_time - start_time;
     
-    cout << "vvvvvvvvvvvvvv 效能測試結果 vvvvvvvvvvvvv\n";
-    cout << "運算耗時: " << elapsed.count() << " 秒\n";
-    cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n";
+    cout << "vvvvvvvvvvvvvv Performance Results vvvvvvvvvvvvv\n";
+    cout << "Execution Time: " << elapsed.count() << " seconds\n";
+    cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n";
     cout << "\n";
 
     // more ...
     cout << "============= Additional features 1: Image Segamentation =============\n";
     RGBImage* test_img = new RGBImage();
     if (!test_img->LoadImage("Image-Folder/bunny.png")) {
-        cerr << "找不到測試圖片 bunny.png！\n";
+        cerr << "Error: Cannot find test image: Image-Folder/bunny.png\n";
         delete test_img;
         return -1;
     }
@@ -114,7 +114,6 @@ int main(int argc, char *argv[]){
     RGBImage* background_only = nullptr;
 
     ImageSegmentation seg(50);
-    cout << "正在分離主體與背景...\n";
     seg.Segment(test_img, subject_only, background_only);
 
     if (subject_only && background_only) {
@@ -124,7 +123,7 @@ int main(int argc, char *argv[]){
         cout << "[done] Image Segmentation -> output/add1_background.jpg\n";
     }
     else {
-        cerr << "分割失敗，未產生圖片。\n";
+        cerr << "Error: Segmentation failed, no images generated.\n";
     }
     delete test_img;
     if (subject_only) delete subject_only;
@@ -134,26 +133,22 @@ int main(int argc, char *argv[]){
     cout << "============= Additional features 2: Single Image Mosaic =============\n";
     RGBImage* target_img = new RGBImage();
     if (!target_img->LoadImage("Image-Folder/girl_2x.png")) {
-        cerr << "無法載入目標圖片\n";
+        cerr << "Error: Cannot find target image: Image-Folder/girl_2x.png\n";
         return -1;
     }
 
     RGBImage* single_material = new RGBImage();
     if (!single_material->LoadImage("Image-Folder/ranbow_taipei.png")) {
-        cerr << "無法載入素材圖片\n";
+        cerr << "Error: Cannot find material image: Image-Folder/ranbow_taipei.png\n";
         delete target_img;
         return -1;
     }
     
-
     int tileSize = 16; 
     SingleImageMosaic mosaic_solver(tileSize);
-
     mosaic_solver.LoadTilesFromSingleImage(single_material);
 
-    // blend_ratio 建議設在 0.1 ~ 0.3。數字越低，細看時單圖的特徵越明顯；數字越高，遠看時大圖輪廓越清晰。
-    double blend_ratio = 0.2; 
-    mosaic_solver.Process(target_img, blend_ratio);
+    mosaic_solver.Process(target_img);
 
     target_img->DumpImage("output/add2_single_image_mosaic.jpg");
 
@@ -166,51 +161,54 @@ int main(int argc, char *argv[]){
     auto start_time_pthread = chrono::high_resolution_clock::now();
     RGBImage* add3Img = new RGBImage();
     if (!add3Img->LoadImage("Image-Folder/girl_2x.png")) {
-        cerr << "找不到原始圖片 lena.jpg！\n";
+        cerr << "Error: Cannot find target image: Image-Folder/girl_2x.png\n";
         delete add3Img;
         return -1;
     }
 
-    Pthread_for_Photo_Mosaic mosaic_pthread(16); // 設定磁磚大小為 16x16
-    mosaic_pthread.LoadTiles("Image-Folder/cifar10");
-    mosaic_pthread.Process(add3Img);
+    Photo_Mosaic* mosaic_pthread = new Pthread_for_Photo_Mosaic(16); 
+    mosaic_pthread->LoadTiles("Image-Folder/cifar10");
+    mosaic_pthread->Process(add3Img);
 
     add3Img->DumpImage("output/add3_pthread_photo_mosaic.jpg");
     cout << "[done] Photo Mosaic -> output/add3_pthread_photo_mosaic.jpg\n";
+    
     delete add3Img;
+    delete mosaic_pthread;
 
     auto end_time_pthread = chrono::high_resolution_clock::now();
     chrono::duration<double> elapsed_pthread = end_time_pthread - start_time_pthread;
 
-    cout << "vvvvvvvvvvvvvv 效能測試結果 vvvvvvvvvvvvv\n";
-    cout << "運算耗時: " << elapsed_pthread.count() << " 秒\n";
-    cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n";
+    cout << "vvvvvvvvvvvvvv Performance Results vvvvvvvvvvvvv\n";
+    cout << "Execution Time: " << elapsed_pthread.count() << " seconds\n";
+    cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n";
     cout << "\n";
 
     cout << "============= Additional features 4: CUDA for Photo Mosaic =============\n";
     auto start_time_cuda = chrono::high_resolution_clock::now();
     RGBImage* add4Img = new RGBImage();
     if (!add4Img->LoadImage("Image-Folder/girl_2x.png")) {
-        cerr << "找不到原始圖片 lena.jpg！\n";
+        cerr << "Error: Cannot find target image: Image-Folder/girl_2x.png\n";
         delete add4Img;
         return -1;
     }
 
-    CUDA_for_Photo_Mosaic mosaic_cuda(16); // 設定磁磚大小為 16x16
-    mosaic_cuda.LoadTiles("Image-Folder/cifar10");
-    mosaic_cuda.Process(add4Img);
+    Photo_Mosaic* mosaic_cuda = new CUDA_for_Photo_Mosaic(16); 
+    mosaic_cuda->LoadTiles("Image-Folder/cifar10");
+    mosaic_cuda->Process(add4Img);
 
     add4Img->DumpImage("output/add4_cuda_photo_mosaic.jpg");
     cout << "[done] Photo Mosaic -> output/add4_cuda_photo_mosaic.jpg\n";
 
     delete add4Img;
+    delete mosaic_cuda;
 
     auto end_time_cuda = chrono::high_resolution_clock::now();
     chrono::duration<double> elapsed_cuda = end_time_cuda - start_time_cuda;
 
-    cout << "vvvvvvvvvvvvvv 效能測試結果 vvvvvvvvvvvvv\n";
-    cout << "運算耗時: " << elapsed_cuda.count() << " 秒\n";
-    cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n";
+    cout << "vvvvvvvvvvvvvv Performance Results vvvvvvvvvvvvv\n";
+    cout << "Execution Time: " << elapsed_cuda.count() << " seconds\n";
+    cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n";
     cout << "\n";
 
     return 0;

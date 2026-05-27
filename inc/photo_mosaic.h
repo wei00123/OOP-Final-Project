@@ -7,24 +7,22 @@
 
 using namespace std;
 
-struct TileInfo {
-    RGBImage* tile_img; 
-    int avgR, avgG, avgB;
-};
-
 class Photo_Mosaic {
-private:
-    vector<TileInfo> tile_db;
+protected:
     int tileSize;
-
-    void CalculateAverageColor(RGBImage* img, int &r, int &g, int &b);
+    struct TileInfo {
+        RGBImage* tile_img;
+        int avgR, avgG, avgB;
+    };
+    vector<TileInfo> tile_db;
 
 public:
-    Photo_Mosaic(int size = 16);
-    ~Photo_Mosaic();
-
-    void LoadTiles(string folder_path);
-    void Process(RGBImage *target);
+    Photo_Mosaic(int size);
+    virtual ~Photo_Mosaic();
+    void CalculateAverageColor(RGBImage* img, int &r, int &g, int &b);
+    void LoadTiles(std::string folder_path);
+    
+    virtual void Process(RGBImage *target);
 };
 
 #endif
