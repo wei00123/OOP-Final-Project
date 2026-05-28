@@ -20,7 +20,7 @@ public:
     Photo_Mosaic(int size);
     virtual ~Photo_Mosaic();
     void CalculateAverageColor(RGBImage* img, int &r, int &g, int &b);
-    void LoadTiles(std::string folder_path);
+    void LoadTiles(const string& folder_path);
     
     virtual void Process(RGBImage *target);
 };

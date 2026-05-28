@@ -30,9 +30,6 @@ public:
 
     int get_width() const;
     int get_height() const;
-
-    virtual Image* Dilation(int kernel_size) { return nullptr; }
-    virtual Image* Erosion(int kernel_size) { return nullptr; }
 };
 
 #endif

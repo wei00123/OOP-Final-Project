@@ -45,7 +45,7 @@ void Photo_Mosaic::CalculateAverageColor(RGBImage* img, int &r, int &g, int &b){
 }
 
 // 前置作業，把素材資料夾裡的圖轉化為可以使用的小圖資料庫
-void Photo_Mosaic::LoadTiles(string folder_path){
+void Photo_Mosaic::LoadTiles(const string& folder_path){
     vector<string> all_files;
     Data_Loader loader;
 

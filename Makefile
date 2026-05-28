@@ -2,16 +2,116 @@
 CXX = g++
 NVCC = /usr/lib/nvidia-cuda-toolkit/bin/nvcc
 CXXFLAGS = -I ./inc -I ./third-party/CImg -I ./third-party/libjpeg -I ./Data-Loader -std=c++11
-# CUDA 編編參數：包含相同標頭檔路徑，並指定 C++11 標準
+# CUDA 編譯參數：包含相同標頭檔路徑，並指定 C++11 標準
 NVCCFLAGS = -I ./inc -I ./third-party/CImg -I ./third-party/libjpeg -I ./Data-Loader -std=c++11 -Xcompiler "-O3 -march=native"
-#  修正：已移除 -flto 避免 GCC 版本不一致造成的編譯中斷
+#  修正：移除 -flto 避免
 OPTFLAGS = -march=native -funroll-loops -finline-functions -ffast-math -O3
 WARNINGS = -g -Wall
 LINKER = -L/usr/X11R6/lib -lm -lpthread -lX11 -L./third-party/libjpeg -ljpeg -lpng
 
-# Valgrind for memory issue
 CHECKCC = valgrind
-CHECKFLAGS = --leak-check=full -s --show-leak-kinds=all --track-origins=yes 
+SUPP_FILE = valgrind.supp
+CHECKFLAGS = --leak-check=full -s --show-leak-kinds=definite,indirect --track-origins=yes --suppressions=$(SUPP_FILE)
+
+# 確保 Shell 在 echo 時讀得到這個多行變數
+export VALGRIND_SUPP_CONTENT
+# 定義自動生成的抑制檔內容避(免WSL下NVIDIA驅動產生的錯誤報告）
+define VALGRIND_SUPP_CONTENT
+{
+   Ignore_Glibc_Dlopen_Cond
+   Memcheck:Cond
+   ...
+   fun:_dl_*
+}
+{
+   Ignore_Glibc_Dlerror_Cond
+   Memcheck:Cond
+   ...
+   fun:*dlerror*
+}
+{
+   Ignore_Glibc_Dlopen_Param_Openat
+   Memcheck:Param
+   openat(filename)
+   ...
+   fun:_dl_*
+}
+{
+   Ignore_WSL_Dir_Cond
+   Memcheck:Cond
+   ...
+   obj:*/usr/lib/wsl/*
+}
+{
+   Ignore_WSL_Dir_Value8
+   Memcheck:Value8
+   ...
+   obj:*/usr/lib/wsl/*
+}
+{
+   Ignore_WSL_Dir_Value4
+   Memcheck:Value4
+   ...
+   obj:*/usr/lib/wsl/*
+}
+{
+   Ignore_WSL_Param_Mmap_Length
+   Memcheck:Param
+   mmap(length)
+   ...
+   obj:*/usr/lib/wsl/*
+}
+{
+   Ignore_WSL_Param_Ioctl
+   Memcheck:Param
+   ioctl(generic)
+   ...
+   obj:*/usr/lib/wsl/*
+}
+{
+   Ignore_Libcuda_All_Cond
+   Memcheck:Cond
+   ...
+   obj:*libcuda*
+}
+{
+   Ignore_Libcudart_All_Cond
+   Memcheck:Cond
+   ...
+   obj:*libcudart*
+}
+{
+   Ignore_Libnvdx_All_Param
+   Memcheck:Param
+   ...
+   obj:*libnvdx*
+}
+{
+   Ignore_System_Pthread_Leak
+   Memcheck:Leak
+   ...
+   obj:*libpthread*.so*
+}
+{
+   Ignore_System_Glibc_Leak
+   Memcheck:Leak
+   ...
+   obj:*libc*.so*
+}
+{
+   Ignore_System_Ld_Linker_Leak
+   Memcheck:Leak
+   ...
+   obj:*ld*.so*
+}
+{
+   Ignore_System_Libstdcxx_Leak
+   Memcheck:Leak
+   ...
+   obj:*libstdc++*.so*
+}
+endef
+# =======================================================
 
 # Source files and object files
 SRCDIR = src
@@ -53,23 +153,22 @@ $(OBJDIR):
 $(OUTDIR):
 	@mkdir -p $(OUTDIR)
 
-# 1. 編譯 main.o (拿掉複雜參數，純粹編譯成物件檔)
+# 編譯 main.o
 $(OBJDIR)/main.o: main.cpp | $(OBJDIR) Makefile
 	$(VECHO) "  CC\t$@\n"
 	$(Q)$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# 2. 編譯 data_loader_demo.o
+# 編譯 data_loader_demo.o
 $(OBJDIR)/data_loader_demo.o: data_loader_demo.cpp | $(OBJDIR) Makefile
 	$(VECHO) "  CC\t$@\n"
 	$(Q)$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# 3. 最終連結：Image_Processing
-#  修正：利用 filter-out 確保 $(OBJS) 內若已含 data_loader.o，不會在指令中重複出現導致 Linker 混亂
+# 最終連結：Image_Processing
 Image_Processing: $(OBJDIR)/main.o $(OBJS) $(OBJDIR)/data_loader.o
 	$(VECHO) "  LD\t$@\n"
 	$(Q)$(NVCC) $(OBJDIR)/main.o $(OBJDIR)/data_loader.o $(filter-out $(OBJDIR)/data_loader.o, $(OBJS)) -o $@ $(LINKER) -lpthread -lcudart
 
-# 4. 最終連結：Data_Loader_Example
+# Data_Loader_Example
 Data_Loader_Example: $(OBJDIR)/data_loader_demo.o $(OBJDIR)/data_loader.o
 	$(VECHO) "  LD\t$@\n"
 	$(Q)$(CXX) $(OBJDIR)/data_loader_demo.o $(OBJDIR)/data_loader.o -o $@ $(LINKER)
@@ -77,19 +176,18 @@ Data_Loader_Example: $(OBJDIR)/data_loader_demo.o $(OBJDIR)/data_loader.o
 # Include generated dependency files
 -include $(DEPS)
 
-# C++ 檔案的編譯規則
+# C++(.cpp)檔案的編譯規則
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR) Makefile
 	$(VECHO) "  CC\t$@\n"
 	$(Q)$(CXX) $(WARNINGS) $(CXXFLAGS) $(OPTFLAGS) -MMD -c $< -o $@
 
-# CUDA (.cu) 檔案的編譯規則
+# CUDA(.cu)檔案的編譯規則
 $(OBJDIR)/%.o: $(SRCDIR)/%.cu | $(OBJDIR) Makefile
 	$(VECHO) "  NVCC\t$@\n"
 	$(Q)$(NVCC) $(NVCCFLAGS) -M -MT $@ -o $(patsubst $(OBJDIR)/%.o,$(OBJDIR)/%.d,$@) $<
 	$(Q)$(NVCC) $(NVCCFLAGS) -c $< -o $@
 
-# Compilation rule for data_loader.o with explicit dependencies
-#  修改後（把 $(OPTFLAGS) 拿掉，改用單純的編譯）：
+# Compilation rule for data_loader.o
 $(OBJDIR)/data_loader.o: ./Data-Loader/data_loader.cpp ./Data-Loader/data_loader.h | $(OBJDIR) Makefile
 	$(VECHO) "  CC\t$@\n"
 	$(Q)$(CXX) $(WARNINGS) $(CXXFLAGS) -MMD -c $< -o $@
@@ -100,8 +198,14 @@ install:
 	$(Q)./scripts/clone_env.sh  > /dev/null 2>&1
 	$(VECHO) "Finished installing third party dependencies!!\n"
 
-check:
+# 動態檢測
+check: $(SUPP_FILE)
 	$(CHECKCC) $(CHECKFLAGS) ./Image_Processing
 
+# 動態生成抑制檔的規則
+$(SUPP_FILE):
+	$(VECHO) "  GEN\t$@\n"
+	$(Q)echo "$$VALGRIND_SUPP_CONTENT" > $@
+
 clean:
-	$(Q)rm -rf $(OBJDIR) $(TARGET) $(OUTDIR)
+	$(Q)rm -rf $(OBJDIR) $(TARGET) $(OUTDIR) $(SUPP_FILE)

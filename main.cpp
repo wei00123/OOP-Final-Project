@@ -126,14 +126,15 @@ int main(int argc, char *argv[]){
         cerr << "Error: Segmentation failed, no images generated.\n";
     }
     delete test_img;
-    if (subject_only) delete subject_only;
-    if (background_only) delete background_only;
+    if (subject_only) { delete subject_only; subject_only = nullptr; }
+    if (background_only) { delete background_only; background_only = nullptr; }
     cout << "\n";
 
     cout << "============= Additional features 2: Single Image Mosaic =============\n";
     RGBImage* target_img = new RGBImage();
     if (!target_img->LoadImage("Image-Folder/girl_2x.png")) {
         cerr << "Error: Cannot find target image: Image-Folder/girl_2x.png\n";
+        delete target_img;
         return -1;
     }
 
@@ -141,6 +142,7 @@ int main(int argc, char *argv[]){
     if (!single_material->LoadImage("Image-Folder/ranbow_taipei.png")) {
         cerr << "Error: Cannot find material image: Image-Folder/ranbow_taipei.png\n";
         delete target_img;
+        delete single_material;
         return -1;
     }
     

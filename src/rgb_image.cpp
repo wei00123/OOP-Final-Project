@@ -13,6 +13,10 @@ RGBImage::~RGBImage(){
 }
 
 void RGBImage::allocate(int w, int h) {
+    if(w <= 0 || h <= 0){
+        pixels = nullptr;
+        return;
+    }
     pixels = new int**[h];
     for(int i = 0; i < h; ++i) {
         pixels[i] = new int*[w];
@@ -33,7 +37,12 @@ void RGBImage::deallocate() {
 
 bool RGBImage::LoadImage(string filename){
     this->filename = filename;
+    deallocate();
     pixels = dataLoader.Load_RGB(filename, &width, &height);
+    if (!pixels) {
+        width = 0;
+        height = 0;
+    }
     return (pixels != nullptr);
 }
 

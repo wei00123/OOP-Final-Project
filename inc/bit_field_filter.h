@@ -5,10 +5,10 @@
 
 class Bit_Field_Filter {
 private:
-    void Apply_Box_Filter(RGBImage *img);
-    void Apply_Sobel_Gradient(RGBImage *img);
-    void Apply_Contrast_Stretching(RGBImage *img);
-    void Apply_Mosaic_Filter(RGBImage *img);
+    static void Apply_Box_Filter(RGBImage *img);
+    static void Apply_Sobel_Gradient(RGBImage *img);
+    static void Apply_Contrast_Stretching(RGBImage *img);
+    static void Apply_Mosaic_Filter(RGBImage *img);
 
 public:
     Bit_Field_Filter();

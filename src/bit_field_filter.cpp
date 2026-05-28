@@ -54,8 +54,8 @@ void Bit_Field_Filter::Apply_Box_Filter(RGBImage *img){
     }
 
     // 寫回原圖並釋放記憶體
-    for (int y = 1; y < h - 1; y++){
-        for (int x = 1; x < w - 1; x++){
+    for (int y = 0; y < h; y++){
+        for (int x = 0; x < w; x++){
             img->setRGB(x, y, temp[y][x][0], temp[y][x][1], temp[y][x][2]);
             delete[] temp[y][x];
         }
@@ -102,8 +102,8 @@ void Bit_Field_Filter::Apply_Sobel_Gradient(RGBImage *img){
     }
 
     // 寫回原圖並釋放記憶體
-    for (int y = 1; y < h - 1; y++){
-        for (int x = 1; x < w - 1; x++){
+    for (int y = 0; y < h; y++){
+        for (int x = 0; x < w; x++){
             img->setRGB(x, y, temp[y][x][0], temp[y][x][1], temp[y][x][2]);
             delete[] temp[y][x];
         }

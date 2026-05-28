@@ -14,7 +14,7 @@ public:
     ~GrayImage();
 
     bool LoadImage(string filename) override;
-    void DumpImage(std::string out_filename) override;
+    void DumpImage(string filename) override;
     void Display_X_Server() override;
     void Display_ASCII() override;
     void Display_CMD() override;

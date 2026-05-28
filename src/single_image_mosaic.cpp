@@ -85,9 +85,6 @@ void SingleImageMosaic::Process(RGBImage* target){
             }
 
             RGBImage* best_tile = tile_db[best_idx].tile_img;
-            int tileAvgR = tile_db[best_idx].avgR;
-            int tileAvgG = tile_db[best_idx].avgG;
-            int tileAvgB = tile_db[best_idx].avgB;
 
             // 換成最相似的小圖
             for(int ty = 0; ty < currentH; ty++){
