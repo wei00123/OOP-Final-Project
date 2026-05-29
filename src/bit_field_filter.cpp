@@ -78,26 +78,38 @@ void Bit_Field_Filter::Apply_Sobel_Gradient(RGBImage *img){
     int Gx[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
     int Gy[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
 
+    // 控制清晰度的鍵門檻值（通常設定在 50 ~ 100 之間）
+    // 數字越低：抓到的線條越多、越細節；數字越高：線條越乾淨、越銳利
+    int threshold = 120; 
+
     for (int y = 1; y < h - 1; y++){
         for (int x = 1; x < w - 1; x++){
-            int rx = 0, ry = 0, gx = 0, gy = 0, bx = 0, by = 0;
+            int gx = 0, gy = 0;
+            
             for (int dy = -1; dy <= 1; dy++){
                 for (int dx = -1; dx <= 1; dx++){
                     int r = img->getR(x + dx, y + dy);
                     int g = img->getG(x + dx, y + dy);
                     int b = img->getB(x + dx, y + dy);
                     
-                    rx += r * Gx[dy+1][dx+1]; ry += r * Gy[dy+1][dx+1];
-                    gx += g * Gx[dy+1][dx+1]; gy += g * Gy[dy+1][dx+1];
-                    bx += b * Gx[dy+1][dx+1]; by += b * Gy[dy+1][dx+1];
+                    // 【修改 1】利用工業標準公式，將 RGB 轉為單一灰階亮度 (Gray = 0.299R + 0.587G + 0.114B)
+                    int gray = static_cast<int>(0.299 * r + 0.587 * g + 0.114 * b);
+                    
+                    gx += gray * Gx[dy+1][dx+1];
+                    gy += gray * Gy[dy+1][dx+1];
                 }
             }
-            // 計算近似梯度並限制在 255 以內
-            int valR = std::min(255, std::abs(rx) + std::abs(ry));
-            int valG = std::min(255, std::abs(gx) + std::abs(gy));
-            int valB = std::min(255, std::abs(bx) + std::abs(by));
             
-            temp[y][x][0] = valR; temp[y][x][1] = valG; temp[y][x][2] = valB;
+            // 使用標準歐幾里德距離 (sqrt) 計算梯度總強度，比單純相加絕對值更平滑準確
+            int magnitude = static_cast<int>(std::sqrt(gx * gx + gy * gy));
+            
+            // 超過門檻就是白色線條(255)，否則就是黑色背景(0)
+            int final_val = (magnitude > threshold) ? 255 : 0;
+            
+            // R, G, B 三個通道都填入相同數值，確保影像絕對是純黑白
+            temp[y][x][0] = final_val; 
+            temp[y][x][1] = final_val; 
+            temp[y][x][2] = final_val;
         }
     }
 
@@ -122,9 +134,9 @@ void Bit_Field_Filter::Apply_Contrast_Stretching(RGBImage *img){
     // 第一次掃描：找 min 和 max
     for (int y = 0; y < h; y++){
         for (int x = 0; x < w; x++){
-            minR = std::min(minR, img->getR(x,y)); maxR = std::max(maxR, img->getR(x,y));
-            minG = std::min(minG, img->getG(x,y)); maxG = std::max(maxG, img->getG(x,y));
-            minB = std::min(minB, img->getB(x,y)); maxB = std::max(maxB, img->getB(x,y));
+            minR = min(minR, img->getR(x,y)); maxR = max(maxR, img->getR(x,y));
+            minG = min(minG, img->getG(x,y)); maxG = max(maxG, img->getG(x,y));
+            minB = min(minB, img->getB(x,y)); maxB = max(maxB, img->getB(x,y));
         }
     }
 
