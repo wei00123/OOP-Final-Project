@@ -82,7 +82,7 @@ define VALGRIND_SUPP_CONTENT
 }
 {
    Ignore_Libnvdx_All_Param
-   Memcheck:Param
+   Memcheck:Cond
    ...
    obj:*libnvdx*
 }
